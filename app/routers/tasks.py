@@ -5,44 +5,48 @@ from typing import List
 from app.database import get_db
 from app.models.task import Task, TaskStatus, TaskPriority
 from app.schemas.task import TaskCreate, TaskResponse
+from app.core.deps import get_current_user
+from app.models.user import User
 
+# Dùng task_router để khớp với main.py
 task_router = APIRouter(
     prefix="/tasks",
     tags=["tasks"]
 )
 
-# GET all tasks
+# GET all tasks của user hiện tại
 @task_router.get("/", response_model=List[TaskResponse])
-def get_all_tasks(db: Session = Depends(get_db)):
-    tasks = db.query(Task).all()
+def get_all_tasks(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    tasks = db.query(Task).filter(Task.user_id == current_user.id).all()
     return tasks
 
-# GET task by id
-@task_router.get("/{task_id}", response_model=TaskResponse)
-def get_task(task_id: int, db: Session = Depends(get_db)):
-    task = db.query(Task).filter(Task.id == task_id).first()
-    if task is None:
-        raise HTTPException(status_code=404, detail="Task not found")
-    return task
-
-# CREATE new task
+# CREATE task
 @task_router.post("/", response_model=TaskResponse, status_code=status.HTTP_201_CREATED)
-def create_task(task: TaskCreate, db: Session = Depends(get_db)):
+def create_task(task: TaskCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     db_task = Task(
         title=task.title,
         description=task.description,
         status=TaskStatus(task.status),
-        priority=TaskPriority(task.priority)
+        priority=TaskPriority(task.priority),
+        user_id=current_user.id
     )
     db.add(db_task)
     db.commit()
     db.refresh(db_task)
     return db_task
 
+# GET task by id
+@task_router.get("/{task_id}", response_model=TaskResponse)
+def get_task(task_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    task = db.query(Task).filter(Task.id == task_id, Task.user_id == current_user.id).first()
+    if task is None:
+        raise HTTPException(status_code=404, detail="Task not found")
+    return task
+
 # UPDATE task
 @task_router.put("/{task_id}", response_model=TaskResponse)
-def update_task(task_id: int, task_update: TaskCreate, db: Session = Depends(get_db)):
-    task = db.query(Task).filter(Task.id == task_id).first()
+def update_task(task_id: int, task_update: TaskCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    task = db.query(Task).filter(Task.id == task_id, Task.user_id == current_user.id).first()
     if task is None:
         raise HTTPException(status_code=404, detail="Task not found")
     
@@ -57,8 +61,8 @@ def update_task(task_id: int, task_update: TaskCreate, db: Session = Depends(get
 
 # DELETE task
 @task_router.delete("/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_task(task_id: int, db: Session = Depends(get_db)):
-    task = db.query(Task).filter(Task.id == task_id).first()
+def delete_task(task_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    task = db.query(Task).filter(Task.id == task_id, Task.user_id == current_user.id).first()
     if task is None:
         raise HTTPException(status_code=404, detail="Task not found")
     

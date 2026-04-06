@@ -1,6 +1,6 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, Enum
+from sqlalchemy import Column, Integer, String, Text, DateTime, Enum, ForeignKey
 from sqlalchemy.sql import func
-from datetime import datetime
+from sqlalchemy.orm import relationship
 import enum
 
 from app.database import Base
@@ -23,6 +23,10 @@ class Task(Base):
     description = Column(Text, nullable=True)
     status = Column(Enum(TaskStatus), default=TaskStatus.todo)
     priority = Column(Enum(TaskPriority), default=TaskPriority.medium)
+    
+    # Quan hệ với User
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
