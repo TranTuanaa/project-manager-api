@@ -24,11 +24,17 @@ class Task(Base):
     status = Column(Enum(TaskStatus), default=TaskStatus.todo)
     priority = Column(Enum(TaskPriority), default=TaskPriority.medium)
     
-    # Quan hệ với User
+    # Liên kết với User (ai tạo task)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    
+    # Liên kết với Project (task thuộc project nào)
+    project_id = Column(Integer, ForeignKey("projects.id"), nullable=False)
     
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    # Relationship
+    project = relationship("Project", back_populates="tasks")
 
     def __repr__(self):
         return f"<Task {self.id}: {self.title}>"

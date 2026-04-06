@@ -22,13 +22,14 @@ def get_all_tasks(db: Session = Depends(get_db), current_user: User = Depends(ge
 
 # CREATE task
 @task_router.post("/", response_model=TaskResponse, status_code=status.HTTP_201_CREATED)
-def create_task(task: TaskCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def create_task(task: TaskCreate, project_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     db_task = Task(
         title=task.title,
         description=task.description,
         status=TaskStatus(task.status),
         priority=TaskPriority(task.priority),
-        user_id=current_user.id
+        user_id=current_user.id,
+        project_id=project_id
     )
     db.add(db_task)
     db.commit()
