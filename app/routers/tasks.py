@@ -36,12 +36,11 @@ def create_task(task: TaskCreate, db: Session = Depends(get_db), current_user: U
     return db_task
 
 # GET task by id
-@task_router.get("/{task_id}", response_model=TaskResponse)
-def get_task(task_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    task = db.query(Task).filter(Task.id == task_id, Task.user_id == current_user.id).first()
-    if task is None:
-        raise HTTPException(status_code=404, detail="Task not found")
-    return task
+# GET all tasks của user hiện tại
+@task_router.get("/", response_model=List[TaskResponse])
+def get_all_tasks(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    tasks = db.query(Task).filter(Task.user_id == current_user.id).all()
+    return tasks
 
 # UPDATE task
 @task_router.put("/{task_id}", response_model=TaskResponse)

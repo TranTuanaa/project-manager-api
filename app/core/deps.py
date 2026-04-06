@@ -37,6 +37,7 @@ async def get_current_user(
     if user is None:
         print("=== DEBUG: User not found in database")
         raise credentials_exception
-    
+    if not user.is_active:
+        raise HTTPException(status_code=400, detail='User is inactive')
     print("=== DEBUG: User authenticated successfully:", user.email)
     return user
