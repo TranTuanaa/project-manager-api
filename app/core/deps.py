@@ -5,8 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models.user import User
-from app.core.config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, REFRESH_TOKEN_EXPIRE_DAYS
-
+from app.core.config import settings   # ← Sửa thành import settings
 
 security = HTTPBearer()
 
@@ -14,7 +13,7 @@ async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: Session = Depends(get_db)
 ):
-    print("=== DEBUG: Token received:", credentials.credentials[:50] + "...")  # Debug
+    print("=== DEBUG: Token received:", credentials.credentials[:50] + "...")
 
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -24,14 +23,14 @@ async def get_current_user(
     
     try:
         token = credentials.credentials
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         email: str = payload.get("sub")
-        print("=== DEBUG: Email from token:", email)   # Debug
+        print("=== DEBUG: Email from token:", email)
 
         if email is None:
             raise credentials_exception
     except JWTError as e:
-        print("=== DEBUG: JWT Error:", str(e))   # Debug
+        print("=== DEBUG: JWT Error:", str(e))
         raise credentials_exception
     
     user = db.query(User).filter(User.email == email).first()
