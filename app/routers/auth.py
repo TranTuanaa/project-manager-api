@@ -6,9 +6,8 @@ from app.database import get_db
 from app.models.user import User
 from app.schemas.user import UserCreate, UserResponse, UserLogin
 from app.core.security import get_password_hash, verify_password, create_access_token, create_refresh_token
-from app.core.config import settings
+from app.core.config import settings   # ← Import settings
 
-# Khai báo router đúng
 router = APIRouter(
     prefix="/auth",
     tags=["auth"]
@@ -59,6 +58,7 @@ def login(user_credentials: UserLogin, db: Session = Depends(get_db)):
             "full_name": user.full_name
         }
     }
+
 # Refresh Token
 @router.post("/refresh")
 def refresh(token_data: dict, db: Session = Depends(get_db)):
