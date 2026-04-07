@@ -20,9 +20,9 @@ app = FastAPI(
 Base.metadata.create_all(bind=engine)
 
 # Include routers
-app.include_router(auth.router, prefix="/auth", tags=["auth"])
-app.include_router(task_router, prefix="/tasks", tags=["tasks"])
-app.include_router(project_router, prefix="/projects", tags=["projects"])
+app.include_router(auth.router, tags=["auth"])
+app.include_router(task_router, tags=["tasks"])
+app.include_router(project_router, tags=["projects"])
 
 @app.get("/")
 def read_root():
