@@ -38,9 +38,7 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
 
-API Docs:
-- Local: `http://127.0.0.1:8000/docs`
-- Live: `https://project-manager-api-5gkz.onrender.com/docs`
+Local API Docs: `http://127.0.0.1:8000/docs`
 
 ## API Notes
 
