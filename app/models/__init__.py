@@ -1,3 +1,3 @@
-from .user import User
+from .project import Project
 from .task import Task
-from .project import Project   # ← Thêm dòng này
+from .user import User

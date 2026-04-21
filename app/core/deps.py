@@ -1,11 +1,11 @@
 from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
 
+from app.core.config import settings
 from app.database import get_db
 from app.models.user import User
-from app.core.config import settings   # ← Sửa thành import settings
 
 security = HTTPBearer()
 
@@ -13,31 +13,25 @@ async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: Session = Depends(get_db)
 ):
-    print("=== DEBUG: Token received:", credentials.credentials[:50] + "...")
-
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
-    
+
     try:
         token = credentials.credentials
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         email: str = payload.get("sub")
-        print("=== DEBUG: Email from token:", email)
 
         if email is None:
             raise credentials_exception
-    except JWTError as e:
-        print("=== DEBUG: JWT Error:", str(e))
+    except JWTError:
         raise credentials_exception
-    
+
     user = db.query(User).filter(User.email == email).first()
     if user is None:
-        print("=== DEBUG: User not found in database")
         raise credentials_exception
     if not user.is_active:
-        raise HTTPException(status_code=400, detail='User is inactive')
-    print("=== DEBUG: User authenticated successfully:", user.email)
+        raise HTTPException(status_code=400, detail="User is inactive")
     return user
