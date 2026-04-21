@@ -42,9 +42,6 @@ Swagger UI: `http://127.0.0.1:8000/docs`
 
 This project pins Python with `.python-version` at `3.12.8`.
 
-For Render, prefer `.python-version` or the `PYTHON_VERSION` environment variable.
-`runtime.txt` is intentionally removed to avoid duplicate version config.
-
 ## Main Endpoints
 
 - `POST /auth/register`
