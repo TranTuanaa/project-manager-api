@@ -38,10 +38,6 @@ Swagger UI: `http://127.0.0.1:8000/docs`
 - `SECRET_KEY`: JWT secret key
 - `DATABASE_URL`: database URL, default is `sqlite:///./project_manager.db`
 
-## Python Version
-
-This project pins Python with `.python-version` at `3.12.8`.
-
 ## Main Endpoints
 
 - `POST /auth/register`
